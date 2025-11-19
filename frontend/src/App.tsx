@@ -6,7 +6,7 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="bg-white shadow-sm">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-xl font-semibold">PAL — Personal AI</h1>
           <LoginButton />
         </div>

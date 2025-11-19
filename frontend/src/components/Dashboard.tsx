@@ -10,7 +10,7 @@ export default function Dashboard() {
     if (!input.trim()) return;
     setMessages((m) => [...m, `You: ${input}`]);
     setTimeout(() => {
-      setMessages((m) => [...m, `PAL: Got it — saved \"${input}\" to memory.`]);
+      setMessages((m) => [...m, `PAL: Got it — saved "${input}" to memory.`]);
     }, 600);
     setInput("");
   }

@@ -1,6 +1,8 @@
 ﻿import React from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginButton() {
+  const navigate = useNavigate();
   const [loggedIn, setLoggedIn] = React.useState(false);
 
   return loggedIn ? (
@@ -15,8 +17,8 @@ export default function LoginButton() {
     </div>
   ) : (
     <button
-      onClick={() => setLoggedIn(true)}
-      className="bg-sky-600 text-white px-3 py-1.5 rounded-md text-sm hover:bg-sky-700"
+      onClick={() => navigate("/login")}
+      className="bg-sky-600 text-white px-3 py-1.5 rounded-md rounded text-sm hover:bg-sky-700"
     >
       Login
     </button>
