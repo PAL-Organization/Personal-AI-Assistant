@@ -1,0 +1,9 @@
+def create_memory_table(conn):
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS memory (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        key TEXT UNIQUE,
+        value TEXT
+    )
+    """)
+    conn.commit()
