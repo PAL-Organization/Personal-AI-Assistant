@@ -1,18 +1,52 @@
-﻿import React from "react";
+﻿// frontend/src/components/Dashboard.tsx
+import React from "react";
+import { addMemory, getMemory } from "../lib/memoryApi";
 
 export default function Dashboard() {
   const [messages, setMessages] = React.useState<string[]>([
     "Welcome to PAL — your personal AI layer.",
   ]);
   const [input, setInput] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
 
-  function send() {
+  // Example: on mount, try to load a previous memory
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const res = await getMemory("last_message");
+        if (res?.value) {
+          setMessages((m) => [...m, `PAL: Remembered last message: "${res.value}"`]);
+        }
+      } catch (err) {
+        // ignore if backend not available
+        console.warn("getMemory failed", err);
+      }
+    })();
+  }, []);
+
+  async function send() {
     if (!input.trim()) return;
-    setMessages((m) => [...m, `You: ${input}`]);
-    setTimeout(() => {
-      setMessages((m) => [...m, `PAL: Got it — saved "${input}" to memory.`]);
-    }, 600);
+    const text = input.trim();
+
+    // update local UI immediately
+    setMessages((m) => [...m, `You: ${text}`]);
     setInput("");
+    setLoading(true);
+
+    try {
+      // persist to backend memory
+      await addMemory("last_message", text);
+
+      // fake AI reply after brief delay
+      setTimeout(() => {
+        setMessages((m) => [...m, `PAL: Got it — saved "${text}" to memory.`]);
+        setLoading(false);
+      }, 450);
+    } catch (err) {
+      setMessages((m) => [...m, `PAL: Could not save memory (offline).`]);
+      setLoading(false);
+      console.error(err);
+    }
   }
 
   return (
@@ -26,6 +60,7 @@ export default function Dashboard() {
                 {m}
               </div>
             ))}
+            {loading && <div className="text-sm text-slate-500">Saving...</div>}
           </div>
           <div className="flex gap-2 mt-3">
             <input
