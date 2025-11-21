@@ -8,6 +8,9 @@ export default function Dashboard() {
   ]);
   const [input, setInput] = React.useState("");
   const [loading, setLoading] = React.useState(false);
+  const [extensionStatus, setExtensionStatus] = React.useState<
+    "connected" | "not-connected"
+  >("not-connected");
 
   // Example: on mount, try to load a previous memory
   React.useEffect(() => {
@@ -23,6 +26,35 @@ export default function Dashboard() {
       }
     })();
   }, []);
+
+  // Step 6: detect extension (safe check)
+  // in Dashboard.tsx, inside the useEffect for extension detection:
+
+React.useEffect(() => {
+  try {
+    // set up listener for response from content script
+    function onMessage(e: MessageEvent) {
+      const m = e.data || {};
+      if (m && m.channel === "PAL" && m.action === "PING_RESP") {
+        if (m.data && m.data.status === "ok") {
+          setExtensionStatus("connected");
+        } else {
+          setExtensionStatus("not-connected");
+        }
+      }
+    }
+    window.addEventListener("message", onMessage);
+
+    // Post a ping message to the page. content script will forward to background.
+    window.postMessage({ channel: "PAL", action: "PING" }, "*");
+
+    // cleanup
+    return () => window.removeEventListener("message", onMessage);
+  } catch (err) {
+    setExtensionStatus("not-connected");
+  }
+}, []);
+
 
   async function send() {
     if (!input.trim()) return;
@@ -85,7 +117,14 @@ export default function Dashboard() {
           <h3 className="font-medium mb-2">Quick Facts</h3>
           <ul className="text-sm text-slate-600">
             <li>- No memories yet</li>
-            <li>- Autofill extension not connected</li>
+            <li>
+              - Autofill extension:{" "}
+              {extensionStatus === "connected" ? (
+                <span style={{ color: "green" }}>Connected</span>
+              ) : (
+                <span style={{ color: "red" }}>Not connected</span>
+              )}
+            </li>
             <li>- Email not connected</li>
           </ul>
         </div>
